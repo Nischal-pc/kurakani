@@ -1,0 +1,13 @@
+:root {
+  --theme-name: "default";
+  primary: #f0f0f0;
+  secondary: #000000;
+  navbar: #212529;
+  button: #ced4da;
+  background: #f8f9fa;
+  card: #dee2e6;
+}
+
+#root {
+  background: var(primary);
+}
