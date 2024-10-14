@@ -6,6 +6,7 @@ import Register from "./components/auth/register";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthContext } from './contexts/authContext';
 import { useContext } from 'react';
+import "./App.css";
 
 function App() {
   const { auth } = useContext(AuthContext);

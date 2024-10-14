@@ -5,7 +5,8 @@ export const PostContext = createContext();
 export default function PostContextProvider({ children }) {
     const [posts, setPosts] = useState([]);
     
-    const createPost = async () => {
+    const createPost = async (data) => {
+        console.log(data);
         // Functionality for creating a post goes here
     };
     

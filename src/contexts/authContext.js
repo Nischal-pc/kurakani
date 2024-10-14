@@ -36,7 +36,7 @@ export default function AuthContextProvider({ children }){
                 FirebaseAuth, formData.email, formData.password
             ).then(userCredential => {
                 const user = userCredential.user;
-                setAuth({user: user.providerData, errors: []});
+                setAuth({user: user.providerData?.[0], errors: []});
             })
         }catch(error){
             setAuth(auth => ({

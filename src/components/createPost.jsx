@@ -1,19 +1,25 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/authContext";
+import { PostContext } from "../contexts/postContext";
 import "./css/post.css";
 
 export default function CreatePost() {
-  const { users } = useContext(AuthContext);
+  const { users, auth } = useContext(AuthContext);
+  const { createPost } = useContext(PostContext);
+  const [tags, setTags] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [location, setLocation] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [image, setImage] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const [caption, setCaption] = useState("");
 
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!location) return; // Ensure location is defined
       try {
-        const apiKey = ""; // process.env.GOOGLE_API_KEY;
+        console.log(process.env);
+        const apiKey = "AIzaSyCOEbzx7xbi72TM_g8gRfIxovJGf0-4m-0"; // process.env.GOOGLE_API_KEY;
         const res = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
             location
@@ -43,9 +49,10 @@ export default function CreatePost() {
 
   const handleImageChange = (e) => {
     const fileArray = Array.from(e.target.files);
-    const previews = fileArray.map((file) => {
+    const promises = fileArray.map((file) => {
       const reader = new FileReader();
       return new Promise((resolve) => {
+        // reader eventlistner
         reader.onloadend = () => {
           resolve({ name: file.name, url: reader.result });
         };
@@ -53,31 +60,85 @@ export default function CreatePost() {
       });
     });
 
-    Promise.all(previews).then((images) => {
-      setPhotos(images);
+    Promise.all(promises).then((images) => {
+      setPhotos((photos) => [...photos, ...images]);
     });
 
     setImage(e.target.value);
   };
 
+  const handleRemoveImage = (index) => {
+    setPhotos((photos) => photos.filter((_, idx) => idx !== index));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createPost({
+      location: selectedLocation,
+      tags: tags,
+      photos: photos,
+      caption,
+    });
+  };
   return (
     <div>
       <div className="">
+        <div className="">
+          <div className="d-flex align-items-center py-2">
+            <img src="favicon.ico" alt="" className="pp-img" />
+            <div className="text-dark ms-1 fw-bold">
+              {users.find((user) => user.email == auth.user.email)?.first_name}{" "}
+              {users.find((user) => user.email == auth.user.email)?.last_name}
+            </div>
+          </div>
+        </div>
+        <div className="small">
+          {selectedLocation && (
+            <div className="my-1 small">
+              at <i>{selectedLocation}</i>
+              <i
+                className="ms-2 fa fa-close text-danger cursor-pointer"
+                onClick={() => setSelectedLocation(null)}
+              ></i>
+            </div>
+          )}
+        </div>
+        <div className="row">
+          {tags.map((tag, idx) => (
+            <div key={idx} className="col-auto pe-0 my-2">
+              {idx === 0 && <span className="small">with </span>}
+              <div className="badge bg-light text-dark small p-2">
+                {tag.first_name} {tag.last_name}{" "}
+                <i
+                  className="fa fa-close text-danger cursor-pointer"
+                  onClick={() =>
+                    setTags((tags) => tags.filter((_, index) => index !== idx))
+                  }
+                ></i>
+              </div>
+            </div>
+          ))}
+        </div>
         <div className="row">
           {photos.map((photo, idx) => (
             <div key={idx} className="col-md-4 my-2 p-1">
               <div className="card p-2 position-relative">
                 <img src={photo.url} alt="" className="post-image" />
                 <div className="position-absolute end-0">
-                  <i className="btn text-danger fa fa-close"></i>
+                  <i
+                    className="btn text-danger fa fa-close"
+                    onClick={() => handleRemoveImage(idx)}
+                  ></i>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <textarea
             rows={4}
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
             className="w-100 form-control"
             placeholder="What's in your mind?&#129300;"
           ></textarea>
@@ -90,7 +151,7 @@ export default function CreatePost() {
             value={image}
             onChange={handleImageChange}
           />
-          <div className="d-flex align-items-center my-1">
+          <div className="d-flex align-items-center mt-2">
             <label htmlFor="image" className="btn btn-light btn-sm me-2">
               <i className="fa fa-image"></i> Photo
             </label>
@@ -112,17 +173,26 @@ export default function CreatePost() {
                     placeholder="Search user..."
                   />
                 </li>
-                {users.map((user, idx) => (
-                  <li key={idx}>
-                    <a
-                      className="dropdown-item border-bottom rounded small"
-                      href="#"
+                {users
+                  .filter((user) => user.email !== auth.user.email)
+                  .filter(
+                    // filter the tagged not list here
+                    (user) => !tags.find((tag) => tag.email === user.email)
+                  )
+                  .map((user, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => setTags((tags) => [...tags, user])}
                     >
-                      <i className="fa fa-user-circle"></i> {user.first_name}{" "}
-                      {user.last_name}
-                    </a>
-                  </li>
-                ))}
+                      <a
+                        className="dropdown-item border-bottom rounded small"
+                        href="#"
+                      >
+                        <i className="fa fa-user-circle"></i> {user.first_name}{" "}
+                        {user.last_name}
+                      </a>
+                    </li>
+                  ))}
               </ul>
             </div>
             <div className="dropdown">
@@ -146,7 +216,7 @@ export default function CreatePost() {
                   />
                 </li>
                 {addresses.map((address, idx) => (
-                  <li key={idx}>
+                  <li key={idx} onClick={() => setSelectedLocation(address)}>
                     <a className="dropdown-item small" href="#">
                       {address}
                     </a>
@@ -161,6 +231,29 @@ export default function CreatePost() {
                 )}
               </ul>
             </div>
+          </div>
+          <div className="modal-footer mt-3">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={
+                !(
+                  (photos.length > 0) |
+                  (caption.trim() !== "") |
+                  (selectedLocation !== null) |
+                  (tags.length > 0)
+                )
+              }
+            >
+              Save Post
+            </button>
           </div>
         </form>
       </div>

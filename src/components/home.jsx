@@ -18,6 +18,7 @@ export default function Home() {
               <h1 className="modal-title fs-5" id="exampleModalLabel">
                 <i className="fa fa-edit"></i> Create Post
               </h1>
+
               <button
                 type="button"
                 className="btn-close"
@@ -27,18 +28,6 @@ export default function Home() {
             </div>
             <div className="modal-body">
               <CreatePost />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="button" className="btn btn-primary">
-                Save Post
-              </button>
             </div>
           </div>
         </div>
