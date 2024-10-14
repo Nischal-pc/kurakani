@@ -1,6 +1,7 @@
-import { createContext, useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { auth as FirebaseAuth } from "../firebase";
+import { createContext, useEffect, useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
+import { auth as FirebaseAuth, db } from "../firebase";
 
 export const AuthContext = createContext();
 
@@ -10,6 +11,24 @@ const initialState = {
 }
 export default function AuthContextProvider({ children }){
     const [auth, setAuth] = useState(initialState);
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const usersCollection = collection(db, "users");
+                const usersSnapshot = await getDocs(usersCollection);
+                const usersList = usersSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setUsers(usersList)
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        }
+        fetchUsers();
+    }, []);
 
     const loginUser = async(formData) => {
         try{
@@ -36,7 +55,7 @@ export default function AuthContextProvider({ children }){
     }
 
     return(
-        <AuthContext.Provider value={{auth,  loginUser, createUser, logoutUser}}>
+        <AuthContext.Provider value={{auth, users,  loginUser, createUser, logoutUser}}>
 
             {children}
         </AuthContext.Provider>
