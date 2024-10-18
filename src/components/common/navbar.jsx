@@ -53,7 +53,7 @@ export default function Navbar() {
                         className="dropdown-item"
                         href="#"
                         data-bs-toggle="modal"
-                        data-bs-target="#exampleModal"
+                        data-bs-target="#createPostModal"
                       >
                         Create Post
                       </a>

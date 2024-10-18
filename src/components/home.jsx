@@ -7,15 +7,15 @@ export default function Home() {
 
       <div
         className="modal fade"
-        id="exampleModal"
+        id="createPostModal"
         tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
+        aria-labelledby="createPostModalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">
+              <h1 className="modal-title fs-5" id="createPostModalLabel">
                 <i className="fa fa-edit"></i> Create Post
               </h1>
 

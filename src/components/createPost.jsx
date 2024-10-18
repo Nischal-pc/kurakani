@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/authContext";
 import { PostContext } from "../contexts/postContext";
 import "./css/post.css";
+import * as $ from "jquery";
 
 export default function CreatePost() {
   const { users, auth } = useContext(AuthContext);
@@ -71,14 +72,20 @@ export default function CreatePost() {
     setPhotos((photos) => photos.filter((_, idx) => idx !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    createPost({
-      location: selectedLocation,
-      tags: tags,
-      photos: photos,
-      caption,
-    });
+    try {
+      await createPost({
+        location: selectedLocation,
+        tags: tags,
+        photos: photos,
+        caption,
+        created_by: auth.user,
+      });
+      $("#createPostClose").click();
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div>
@@ -235,6 +242,7 @@ export default function CreatePost() {
           <div className="modal-footer mt-3">
             <button
               type="button"
+              id="createPostClose"
               className="btn btn-secondary"
               data-bs-dismiss="modal"
             >
